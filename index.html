@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="trail" width="800px" height="800px"></canvas>
+</body>
+<script>
+    function createCanopyPath (context) {
+        //绘制树冠。
+        context.beginPath();
+
+        context.moveTo(-25, -50);
+        context.lineTo(-10, -80);
+        context.lineTo(-20, -80);
+        context.lineTo(-5, -110);
+        context.lineTo(-15, -110);
+
+        //树的顶点。
+        context.lineTo(0, -140);
+
+        context.lineTo(15, -110);
+        context.lineTo(5, -110);
+        context.lineTo(20, -80);
+        context.lineTo(10, -80);
+        context.lineTo(25, -50);
+
+        //连接起点，闭合路径。
+        context.closePath();
+    }
+
+    function drawTree(context) {
+        //创建三阶水平渐变
+        var trunkGradient = context.createLinearGradient(-5, -50, 5, -50);
+        trunkGradient.addColorStop(0, "#663300");
+        trunkGradient.addColorStop(0.4, "#996600");
+        trunkGradient.addColorStop(1, "#552200");
+        //使用渐变色填充树干
+        context.fillStyle = trunkGradient;
+        context.fillRect(-5, -50, 10, 50);
+        
+        //创建垂直渐变，用作树冠投影
+        var canopyshadow = context.createLinearGradient(0, -50, 0, 0);
+        canopyshadow.addColorStop(0, "rgba(0, 0, 0, 0.5)");
+        canopyshadow.addColorStop(0.2, "rgba(0, 0, 0, 0.0)");
+        //在树干上填充投影渐变
+        context.fillStyle = canopyshadow;
+        context.fillRect(-5, -50, 10, 50);
+
+        createCanopyPath(context);
+        context.lineWidth = 4;  //加宽线条
+        context.lineJoin = "round";  //平滑路径的接合点
+        context.strokeStyle = "#663300";  //将颜色改成棕色
+        context.stroke();
+
+        context.fillStyle = "#339900"; //设置填充颜色
+        context.fill();
+    }
+
+    function drawTrails () {
+        //取得canvas元素及其绘图上下文。
+        var canvas = document.getElementById("trail");
+        var context = canvas.getContext("2d");
+
+        //绘制倒影1
+        context.save();
+        context.translate(130, 250);
+        context.transform(1, 0, -0.5, 1, 0, 0);
+        context.scale(1, 0.6);
+        context.fillStyle = "rgba(0, 0, 0, 0.2)";
+        context.fillRect(-5, -50, 10, 50);
+        createCanopyPath(context);
+        context.fill();
+        context.restore();
+
+        //绘制倒影2
+        context.save();
+        context.translate(260, 500);
+        context.transform(1, 0, -0.5, 1, 0, 0);
+        context.scale(2, 1.2);
+        context.fillStyle = "rgba(0, 0, 0, 0.2)";
+        context.fillRect(-5, -50, 10, 50);
+        createCanopyPath(context);
+        context.fill();
+        context.restore();
+
+
+        //绘制第一棵树。
+        context.save();  //保存当前绘图状态。
+        context.translate(130,250);  //将绘图上下文移至130,250。
+        drawTree(context);  //调用绘制小树的函数。
+        context.restore();  //恢复原有的绘图状态。
+        
+
+        //绘制第二棵树。
+        context.save();
+        context.translate(260, 500);
+        context.scale(2, 2);  //将第二棵树的宽高放大至原来的2倍
+        drawTree(context);
+        context.restore();
+        
+        //绘制弯曲的小路
+        context.save();
+        context.translate(-10,350);
+
+        context.beginPath();
+        context.moveTo(0,0);
+        context.quadraticCurveTo(170, -50, 260, -190);  //第一条曲线
+        context.quadraticCurveTo(310, -250, 410, -250);  //第二条曲线
+        context.strokeStyle = "#663300";
+        context.lineWidth = 20; 
+        context.stroke();
+        context.restore();
+
+        //绘制文字
+        context.save();
+        context.font = "60px impact";
+        context.fillStyle = "#000000";
+        context.textAlign = "center";
+        context.shadowColor = "rgba(0, 0, 0, 0.2)";
+        context.shadowOffsetX = 15;
+        context.shadowOffsetY = -10;
+        context.shadowBlur = 2;
+        context.fillText = ("Happy Trails!", 200, 60);
+        context.restore();
+    }
+    //drawTrails();   
+    window.addEventListener("load", drawTrails, true);
+</script>
+</html>
